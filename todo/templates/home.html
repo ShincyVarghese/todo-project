@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title> {{title}}</title>
+
+</head>
+
+<body>
+    <h1>{{title}}</h1>
+
+<hr>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <input
+        type="text"
+        name="title"
+        placeholeder="Enter a task"
+        required>
+
+    <button type="submit">
+        Add Task
+    </button>
+</form>
+
+<hr>
+
+{% if tasks %}
+
+<ul>
+    {% for task in tasks %}
+
+    <li>
+        {% if task.completed %}
+            {{ task.title }}
+        {% else %}
+            {{ task.title }}
+        {% endif %}
+    </li>
+
+    {% empty %}
+        <li>No tasks available.</li>
+
+    {% endfor %}
+</ul>
+
+{% endif %}
+
+
+</body>
+</html>
