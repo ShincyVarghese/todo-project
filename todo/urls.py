@@ -8,4 +8,9 @@ urlpatterns = [
     path("logout/", views.logout_user, name="logout"),
     path("update/<int:id>/", views.update_task, name="update_task"),
     path("delete/<int:id>/", views.delete_task, name="delete_task"),
+    path(
+        "toggle/<int:id>/",
+        views.toggle_task,
+        name="toggle_task"
+    )
 ]

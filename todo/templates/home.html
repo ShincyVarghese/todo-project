@@ -1,70 +1,118 @@
 <!DOCTYPE html>
 <html>
 <head>
+
+    {%load static %}
+
     <title> {{title}}</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
 
 </head>
 
 <body>
 
-    {% if user.is_authenticated %}
+    <div class="container">
+        <h1>{{title}}</h1>
 
-<p>Welcome {{ user.username }}</p>
+    {% if messages %}
 
-<a href="{% url 'logout' %}">Logout</a>
+        {% for message in messages %}
 
-{% else %}
+            <p>{{ message }}</p>
 
-<a href="{% url 'signup' %}">Signup</a>
+        {% endfor %}
 
-{% endif %}
-    <h1>{{title}}</h1>
+    {% endif %}
+
+
+        {% if user.is_authenticated %}
+            <h3> Welcome {{user.username}}</h3>
+   
+
+            <a href="{% url 'logout' %}">Logout</a>
+
+        {% else %}
+            <a href="{% url 'login' %}">Login</a>
+            |
+
+            <a href="{% url 'signup' %}">Signup</a>
+
+        {% endif %}
+
 
 <hr>
 
-<form method="POST">
+<form method="GET">
 
-    {% csrf_token %}
 
     <input
         type="text"
-        name="title"
-        placeholeder="Enter a task"
-        required>
+        name="search"
+        placeholder="Search Task..."
+        value="{{ search }}">
 
     <button type="submit">
-        Add Task
+        Search
     </button>
 </form>
 
+
+<a href="{% url 'home' %}">All</a>
+|
+
+<a href="?status=completed">Completed</a>
+|
+
+<a href="?status=pending">Pending</a>
+
 <hr>
 
-{% if tasks %}
 
-<ul>
+<form method="POST">
+    {% csrf_token %}
+    <input type="text" name="title" placeholder="Enter Task">
+    <button type="submit">Add Task</button>
+</form>
+
+
+
+    <ul>
     {% for task in tasks %}
 
-  <li>
+<li>
 
     {% if task.completed %}
-         {{ task.title }}
+        <s>{{ task.title }} </s>
     {% else %}
         {{ task.title }}
     {% endif %}
 
-    <a href="{% url 'update_task' task.id %}">Edit</a>
+    <a href="{%url 'toggle_task' task.id %}">
+        
+        {% if task.completed %}
+        Undo
+    {% else %}
+        Complete
+    {% endif %}
 
+
+    </a>
+    |
+    <a href="{% url 'update_task' task.id %}">Edit</a>
+    |
     <a href="{% url 'delete_task' task.id %}">Delete</a>
 
 </li>
 
-    {% empty %}
+       {% empty %}
         <li>No tasks available.</li>
+        {% endfor %}
+    </ul>
 
-    {% endfor %}
-</ul>
+    </div>
 
-{% endif %}
 
 
 </body>
