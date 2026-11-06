@@ -12,15 +12,18 @@
             <input
                type="text"
                name="title"
-               value="{{task.title}}"
+               value="{{ form.title.value|default_if_none:'' }}"
                required>
+            {% for error in form.title.errors %}
+                <p class="error-message">{{ error }}</p>
+            {% endfor %}
         <br><br>
 
         <label>
             <input
                type="checkbox"
                name="completed"
-               {% if task.completed %}checked{% endif %}>
+               {% if form.completed.value %}checked{% endif %}>
                Completed
         </label>
         
@@ -30,6 +33,9 @@
             Save
         </button>
         </form>
+        {% for error in form.non_field_errors %}
+            <p class="error-message">{{ error }}</p>
+        {% endfor %}
 
         <br>
 

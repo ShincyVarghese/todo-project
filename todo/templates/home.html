@@ -1,119 +1,232 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
-    {%load static %}
-
-    <title> {{title}}</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f7f7fc">
+    <title>Dashboard | TodoApp</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    
-
 </head>
+<body class="dashboard-body">
+    <div class="dashboard-layout">
+        <aside class="dashboard-sidebar" aria-label="Main navigation">
+            <div class="sidebar-head">
+                <a class="dashboard-brand" href="{% url 'home' %}" aria-label="TodoApp dashboard">
+                    <span class="dashboard-brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.2 4.2L19.5 6.8" /></svg>
+                    </span>
+                    <span>todo<span>app</span></span>
+                </a>
+            </div>
 
-<body>
+            <p class="sidebar-label">WORKSPACE</p>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link {% if not status %}is-active{% endif %}" href="{% url 'home' %}{% if search %}?search={{ search|urlencode }}{% endif %}">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5" /><rect x="13.5" y="3.5" width="7" height="7" rx="1.5" /><rect x="3.5" y="13.5" width="7" height="7" rx="1.5" /><rect x="13.5" y="13.5" width="7" height="7" rx="1.5" /></svg>
+                    <span>Dashboard</span>
+                </a>
+                <a class="sidebar-link" href="#task-list">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M3.5 6h.01M3.5 12h.01M3.5 18h.01" /></svg>
+                    <span>My Tasks</span>
+                </a>
+            </nav>
 
-    <div class="container">
-        <h1>{{title}}</h1>
+            <p class="sidebar-label sidebar-label-filters">TASK VIEWS</p>
+            <nav class="sidebar-nav">
+                <a class="sidebar-link {% if not status %}is-subactive{% endif %}" href="{% url 'home' %}{% if search %}?search={{ search|urlencode }}{% endif %}">
+                    <span class="view-indicator all-indicator"></span>
+                    <span>All Tasks</span>
+                    <span class="sidebar-count">{{ total_tasks }}</span>
+                </a>
+                <a class="sidebar-link {% if status == 'completed' %}is-subactive{% endif %}" href="?{% if search %}search={{ search|urlencode }}&amp;{% endif %}status=completed">
+                    <span class="view-indicator completed-indicator"></span>
+                    <span>Completed</span>
+                    <span class="sidebar-count">{{ completed_tasks }}</span>
+                </a>
+                <a class="sidebar-link {% if status == 'pending' %}is-subactive{% endif %}" href="?{% if search %}search={{ search|urlencode }}&amp;{% endif %}status=pending">
+                    <span class="view-indicator pending-indicator"></span>
+                    <span>Pending</span>
+                    <span class="sidebar-count">{{ pending_tasks }}</span>
+                </a>
+            </nav>
 
-    {% if messages %}
+            <form method="POST" action="{% url 'logout' %}" class="sidebar-logout">
+                {% csrf_token %}
+                <button type="submit" aria-label="Log out">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3m9-8h6a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6" /></svg>
+                    <span>Log out</span>
+                </button>
+            </form>
+        </aside>
 
-        {% for message in messages %}
+        <main class="dashboard-main">
+            <header class="dashboard-topbar">
+                <div class="welcome-copy">
+                    <p class="welcome-kicker">YOUR PERSONAL WORKSPACE</p>
+                    <h1>Welcome back, <span>{{ user.username }}</span></h1>
+                    <p class="welcome-date">{% now "l, F j, Y" %}</p>
+                </div>
+                <div class="topbar-actions">
+                    <form method="GET" class="dashboard-search" role="search">
+                        {% if status %}<input type="hidden" name="status" value="{{ status }}">{% endif %}
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 4.5 4.5" /></svg>
+                        <input type="search" name="search" placeholder="Search tasks..." value="{{ search }}" aria-label="Search tasks by title">
+                        <button type="submit">Search</button>
+                    </form>
+                    <div class="profile-chip" aria-label="Signed in as {{ user.username }}">
+                        <span class="profile-avatar">{{ user.username|first|upper }}</span>
+                        <span class="profile-name">{{ user.username }}</span>
+                    </div>
+                </div>
+            </header>
 
-            <p>{{ message }}</p>
+            {% if messages %}
+                <div class="dashboard-messages" aria-live="polite">
+                    {% for message in messages %}
+                        <p class="dashboard-message message-{{ message.tags }}">
+                            <span class="message-mark" aria-hidden="true">{% if message.tags == "success" %}✓{% else %}!{% endif %}</span>
+                            {{ message }}
+                        </p>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
-        {% endfor %}
+            <section class="stats-grid" aria-label="Task statistics">
+                <article class="stat-card stat-total">
+                    <div class="stat-card-top">
+                        <span class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M3.5 6h.01M3.5 12h.01M3.5 18h.01" /></svg>
+                        </span>
+                        <span class="stat-overline">ALL TIME</span>
+                    </div>
+                    <p class="stat-value">{{ total_tasks }}</p>
+                    <h2>Total tasks</h2>
+                    <p class="stat-caption">Across your workspace</p>
+                </article>
+                <article class="stat-card stat-pending">
+                    <div class="stat-card-top">
+                        <span class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" /><path d="M12 7v5l3 2" /></svg>
+                        </span>
+                        <span class="stat-overline">UP NEXT</span>
+                    </div>
+                    <p class="stat-value">{{ pending_tasks }}</p>
+                    <h2>Pending tasks</h2>
+                    <p class="stat-caption">Ready when you are</p>
+                </article>
+                <article class="stat-card stat-completed">
+                    <div class="stat-card-top">
+                        <span class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 11.1V12a8 8 0 1 1-4.7-7.3M20 5l-8 8-3-3" /></svg>
+                        </span>
+                        <span class="stat-overline">NICE WORK</span>
+                    </div>
+                    <p class="stat-value">{{ completed_tasks }}</p>
+                    <h2>Completed tasks</h2>
+                    <p class="stat-caption">One step at a time</p>
+                </article>
+            </section>
 
-    {% endif %}
+            <section class="add-task-card" id="add-task" aria-labelledby="add-task-heading">
+                <div class="add-task-copy">
+                    <span class="add-task-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" /></svg>
+                    </span>
+                    <span>
+                        <h2 id="add-task-heading">Add a new task</h2>
+                        <p>Capture it now, and keep your day moving.</p>
+                    </span>
+                </div>
+                <form method="POST" class="add-task-form">
+                    {% csrf_token %}
+                    <label class="visually-hidden" for="new-task-title">Task title</label>
+                    <input id="new-task-title" type="text" name="title" placeholder="What needs to get done?" value="{{ task_form.title.value|default_if_none:'' }}" maxlength="200" required>
+                    <button type="submit">
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+                        <span>Add task</span>
+                    </button>
+                    {% for error in task_form.title.errors %}
+                        <p class="add-task-error">{{ error }}</p>
+                    {% endfor %}
+                </form>
+            </section>
 
+            <section class="task-section" id="task-list" aria-labelledby="task-list-heading">
+                <div class="task-section-heading">
+                    <div>
+                        <p class="section-eyebrow">YOUR WORKSPACE</p>
+                        <h2 id="task-list-heading">{% if status == "completed" %}Completed tasks{% elif status == "pending" %}Pending tasks{% else %}All tasks{% endif %}</h2>
+                    </div>
+                    <span class="task-total">{{ tasks|length }} task{{ tasks|length|pluralize }}</span>
+                </div>
 
-        {% if user.is_authenticated %}
-            <h3> Welcome {{user.username}}</h3>
-   
+                <nav class="task-filters" aria-label="Filter tasks">
+                    <a class="filter-chip {% if not status %}is-selected{% endif %}" href="{% url 'home' %}{% if search %}?search={{ search|urlencode }}{% endif %}">All tasks</a>
+                    <a class="filter-chip {% if status == 'pending' %}is-selected{% endif %}" href="?{% if search %}search={{ search|urlencode }}&amp;{% endif %}status=pending">Pending</a>
+                    <a class="filter-chip {% if status == 'completed' %}is-selected{% endif %}" href="?{% if search %}search={{ search|urlencode }}&amp;{% endif %}status=completed">Completed</a>
+                </nav>
 
-            <a href="{% url 'logout' %}">Logout</a>
+                {% if tasks %}
+                    <div class="task-list">
+                        {% for task in tasks %}
+                            <article class="task-card {% if task.completed %}task-is-complete{% endif %}">
+                                <form method="POST" action="{% url 'toggle_task' task.id %}" class="task-toggle-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="task-check-button {% if task.completed %}is-checked{% endif %}" aria-label="{% if task.completed %}Mark {{ task.title }} as pending{% else %}Complete {{ task.title }}{% endif %}">
+                                        {% if task.completed %}
+                                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12.5 4.2 4.2L19.5 6.8" /></svg>
+                                        {% endif %}
+                                    </button>
+                                </form>
+                                <div class="task-content">
+                                    <h3 class="task-title">{{ task.title }}</h3>
+                                    <p class="task-meta">
+                                        <span class="status-dot {% if task.completed %}status-dot-done{% else %}status-dot-pending{% endif %}"></span>
+                                        {% if task.completed %}Completed{% else %}Pending{% endif %}
+                                    </p>
+                                </div>
+                                <div class="task-actions">
+                                    <a class="task-action task-edit" href="{% url 'update_task' task.id %}">
+                                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m14 5 5 5M4 20l4.3-.9L19 8.4a2.1 2.1 0 0 0-3-3L5.3 16.1 4 20Z" /></svg>
+                                        <span>Edit</span>
+                                    </a>
+                                    <a class="task-action task-delete" href="{% url 'delete_task' task.id %}">
+                                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg>
+                                        <span>Delete</span>
+                                    </a>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <span class="empty-illustration" aria-hidden="true">
+                            <svg viewBox="0 0 80 80" fill="none">
+                                <path d="M24 17h27l12 12v33a5 5 0 0 1-5 5H24a5 5 0 0 1-5-5V22a5 5 0 0 1 5-5Z" />
+                                <path d="M51 17v12h12M29 40h25M29 49h17" />
+                                <circle cx="57" cy="57" r="12" />
+                                <path d="M57 51v12m-6-6h12" />
+                            </svg>
+                        </span>
+                        {% if total_tasks %}
+                            <h3>No tasks match these filters.</h3>
+                            <p>Try a different view or clear your search to see more tasks.</p>
+                            <a class="empty-action" href="{% url 'home' %}">Show all tasks <span aria-hidden="true">→</span></a>
+                        {% else %}
+                            <h3>No tasks yet. Start organizing your day!</h3>
+                            <p>Your task list is a blank canvas. Add your first task and build a little momentum.</p>
+                            <a class="empty-action" href="#add-task">Add your first task <span aria-hidden="true">→</span></a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </section>
 
-        {% else %}
-            <a href="{% url 'login' %}">Login</a>
-            |
-
-            <a href="{% url 'signup' %}">Signup</a>
-
-        {% endif %}
-
-
-<hr>
-
-<form method="GET">
-
-
-    <input
-        type="text"
-        name="search"
-        placeholder="Search Task..."
-        value="{{ search }}">
-
-    <button type="submit">
-        Search
-    </button>
-</form>
-
-
-<a href="{% url 'home' %}">All</a>
-|
-
-<a href="?status=completed">Completed</a>
-|
-
-<a href="?status=pending">Pending</a>
-
-<hr>
-
-
-<form method="POST">
-    {% csrf_token %}
-    <input type="text" name="title" placeholder="Enter Task">
-    <button type="submit">Add Task</button>
-</form>
-
-
-
-    <ul>
-    {% for task in tasks %}
-
-<li>
-
-    {% if task.completed %}
-        <s>{{ task.title }} </s>
-    {% else %}
-        {{ task.title }}
-    {% endif %}
-
-    <a href="{%url 'toggle_task' task.id %}">
-        
-        {% if task.completed %}
-        Undo
-    {% else %}
-        Complete
-    {% endif %}
-
-
-    </a>
-    |
-    <a href="{% url 'update_task' task.id %}">Edit</a>
-    |
-    <a href="{% url 'delete_task' task.id %}">Delete</a>
-
-</li>
-
-       {% empty %}
-        <li>No tasks available.</li>
-        {% endfor %}
-    </ul>
-
+            <footer class="dashboard-footer">
+                <span>One task at a time. You've got this.</span>
+                <span>TodoApp <span class="footer-heart" aria-hidden="true">✦</span></span>
+            </footer>
+        </main>
     </div>
-
-
-
 </body>
 </html>

@@ -1,31 +1,213 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    {% load static %}
-    <title>Login</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f1f3ff">
+    <title>Login | TodoApp</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
+<body class="login-body">
+    <main class="login-page">
+        <section class="login-showcase" aria-label="TodoApp introduction">
+            <a class="brand" href="{% url 'login' %}" aria-label="TodoApp home">
+                <span class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="m5 12.5 4.2 4.2L19.5 6.8" />
+                    </svg>
+                </span>
+                <span>todo<span class="brand-accent">app</span></span>
+            </a>
 
-<div class="container">
+            <div class="showcase-copy">
+                <span class="eyebrow"><span class="eyebrow-dot"></span> YOUR DAY, IN FLOW</span>
+                <h2>Make room for<br>what matters.</h2>
+                <p>A little focus goes a long way. Bring your tasks together and turn your plans into progress.</p>
 
-    <h1>Login</h1>
+                <div class="productivity-art" aria-hidden="true">
+                    <div class="art-orbit orbit-one"></div>
+                    <div class="art-orbit orbit-two"></div>
+                    <div class="art-spark spark-one">✦</div>
+                    <div class="art-spark spark-two">✦</div>
+                    <div class="art-task-card">
+                        <div class="art-card-top">
+                            <span class="art-card-label">TODAY'S FOCUS</span>
+                            <span class="art-card-menu">•••</span>
+                        </div>
+                        <div class="art-progress">
+                            <span class="art-progress-icon">
+                                <svg viewBox="0 0 24 24" fill="none">
+                                    <path d="m5 12.5 4.2 4.2L19.5 6.8" />
+                                </svg>
+                            </span>
+                            <span class="art-progress-text"><strong>You're on a roll</strong><small>3 of 5 tasks completed</small></span>
+                            <span class="art-progress-percent">60%</span>
+                        </div>
+                        <div class="art-progress-track"><span></span></div>
+                        <div class="art-task-row">
+                            <span class="art-check checked">
+                                <svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.2 4.2L19.5 6.8" /></svg>
+                            </span>
+                            <span class="art-task-done">Plan the week ahead</span>
+                            <span class="art-task-tag">PERSONAL</span>
+                        </div>
+                        <div class="art-task-row">
+                            <span class="art-check checked">
+                                <svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.2 4.2L19.5 6.8" /></svg>
+                            </span>
+                            <span class="art-task-done">Send project update</span>
+                            <span class="art-task-tag tag-purple">WORK</span>
+                        </div>
+                        <div class="art-task-row">
+                            <span class="art-check"></span>
+                            <span>Make time for a break</span>
+                            <span class="art-task-time">2:30 PM</span>
+                        </div>
+                    </div>
+                    <div class="art-note"><span class="art-note-icon">✦</span><span><strong>Small steps add up</strong><small>Keep your momentum going</small></span></div>
+                </div>
+            </div>
 
-    <form method="POST">
-        {% csrf_token %}
+            <p class="showcase-footer">A calmer way to get things done.</p>
+        </section>
 
-        {{ form.as_p }}
+        <section class="login-panel" aria-labelledby="login-heading">
+            <div class="login-card">
+                <a class="brand mobile-brand" href="{% url 'login' %}" aria-label="TodoApp home">
+                    <span class="brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="m5 12.5 4.2 4.2L19.5 6.8" />
+                        </svg>
+                    </span>
+                    <span>todo<span class="brand-accent">app</span></span>
+                </a>
 
-        <button type="submit">Login</button>
-    </form>
+                <div class="login-heading">
+                    <span class="welcome-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4m9.2 9.2L18 18m0-12-1.4 1.4m-9.2 9.2L6 18" />
+                            <circle cx="12" cy="12" r="4" />
+                        </svg>
+                    </span>
+                    <h1 id="login-heading">Welcome Back!</h1>
+                    <p class="login-subtitle">Stay organized. Get things done.</p>
+                </div>
 
-    <p>
-        Don't have an account?
-        <a href="{% url 'signup' %}">Signup</a>
-    </p>
+                {% if messages %}
+                    <div class="login-messages" aria-live="polite">
+                        {% for message in messages %}
+                            <p class="login-message {{ message.tags }}">{{ message }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-</div>
+                {% if form.non_field_errors %}
+                    <div class="login-alert" role="alert">
+                        <span class="alert-icon" aria-hidden="true">!</span>
+                        <span>
+                            <strong>We couldn't log you in</strong>
+                            <small>
+                                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                            </small>
+                        </span>
+                    </div>
+                {% endif %}
 
+                <form method="POST" class="login-form">
+                    {% csrf_token %}
+
+                    <div class="login-field">
+                        <label for="username">Username</label>
+                        <div class="input-shell">
+                            <svg class="field-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <circle cx="12" cy="8" r="3.5" />
+                                <path d="M5 20v-1.5a7 7 0 0 1 14 0V20z" />
+                            </svg>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder="Enter your username"
+                                value="{{ form.username.value|default_if_none:'' }}"
+                                autocomplete="username"
+                                required
+                                autofocus
+                            >
+                        </div>
+                        {% for error in form.username.errors %}
+                            <p class="field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="login-field">
+                        <label for="password">Password</label>
+                        <div class="input-shell">
+                            <svg class="field-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <rect x="5" y="10" width="14" height="11" rx="2.5" />
+                                <path d="M8 10V7a4 4 0 0 1 8 0v3M12 14.5v2" />
+                            </svg>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                required
+                            >
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                aria-label="Show password"
+                                aria-pressed="false"
+                                data-password-toggle
+                            >
+                                <svg class="eye-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z" />
+                                    <circle cx="12" cy="12" r="2.5" />
+                                </svg>
+                            </button>
+                        </div>
+                        {% for error in form.password.errors %}
+                            <p class="field-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="login-options">
+                        <label class="remember-option">
+                            <input type="checkbox" name="remember_me">
+                            <span class="custom-checkbox" aria-hidden="true"></span>
+                            <span>Remember me</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="login-button">
+                        <span>Log in</span>
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M5 12h14m-6-6 6 6-6 6" />
+                        </svg>
+                    </button>
+                </form>
+
+                <p class="signup-text">
+                    New to TodoApp?
+                    <a href="{% url 'signup' %}">Create an account <span aria-hidden="true">↗</span></a>
+                </p>
+            </div>
+            <p class="panel-footer">Made for your next great day <span aria-hidden="true">✦</span></p>
+        </section>
+    </main>
+
+    <script>
+        const passwordInput = document.getElementById("password");
+        const passwordToggle = document.querySelector("[data-password-toggle]");
+
+        passwordToggle.addEventListener("click", () => {
+            const isVisible = passwordInput.type === "text";
+            passwordInput.type = isVisible ? "password" : "text";
+            passwordToggle.setAttribute("aria-pressed", String(!isVisible));
+            passwordToggle.setAttribute("aria-label", isVisible ? "Show password" : "Hide password");
+        });
+    </script>
 </body>
 </html>
