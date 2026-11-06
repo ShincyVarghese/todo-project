@@ -17,3 +17,10 @@ staticfiles/
 
 # Environment variables
 .env
+
+__pycache__/
+*.py[cod]
+env/
+venv/
+.env
+db.sqlite3
